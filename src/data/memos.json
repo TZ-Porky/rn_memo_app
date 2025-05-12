@@ -5,7 +5,11 @@
         "title": "Premier Test",
         "content": "Contenu tierce",
         "date": "23/10/2025",
-        "pref": true
+        "pref": true,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 2,
@@ -13,7 +17,11 @@
         "title": "Liste de courses",
         "content": "Lait, œufs, pain",
         "date": "24/10/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 3,
@@ -21,7 +29,11 @@
         "title": "Réunion",
         "content": "Préparer présentation",
         "date": "25/10/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 4,
@@ -29,7 +41,11 @@
         "title": "Appeler maman",
         "content": "Prendre des nouvelles",
         "date": "26/10/2025",
-        "pref": true
+        "pref": true,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 5,
@@ -37,7 +53,11 @@
         "title": "Envoyer rapport",
         "content": "Finaliser et envoyer le rapport mensuel",
         "date": "27/10/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 6,
@@ -45,7 +65,11 @@
         "title": "Cours de guitare",
         "content": "Pratiquer les nouveaux accords",
         "date": "28/10/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 7,
@@ -53,7 +77,11 @@
         "title": "Rendez-vous dentiste",
         "content": "Contrôle annuel",
         "date": "29/10/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 8,
@@ -61,7 +89,11 @@
         "title": "Brainstorming projet X",
         "content": "Préparer des idées innovantes",
         "date": "30/10/2025",
-        "pref": true
+        "pref": true,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 9,
@@ -69,7 +101,11 @@
         "title": "Nettoyer la maison",
         "content": "Aspirateur, poussière, sols",
         "date": "31/10/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 10,
@@ -77,7 +113,11 @@
         "title": "Rechercher vols pour Bali",
         "content": "Comparer les prix et les dates",
         "date": "01/11/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 11,
@@ -85,7 +125,11 @@
         "title": "Suivi des tâches équipe B",
         "content": "Vérifier l'avancement",
         "date": "02/11/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 12,
@@ -93,7 +137,11 @@
         "title": "Acheter cadeau anniversaire ami",
         "content": "Trouver quelque chose d'original",
         "date": "03/11/2025",
-        "pref": true
+        "pref": true,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 13,
@@ -101,7 +149,11 @@
         "title": "Lire chapitre sur React Native",
         "content": "Se concentrer sur les Hooks",
         "date": "04/11/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 14,
@@ -109,7 +161,11 @@
         "title": "Test d'intégration",
         "content": "S'assurer de la compatibilité des modules",
         "date": "05/11/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 15,
@@ -117,7 +173,11 @@
         "title": "Préparer le dîner",
         "content": "Recette de lasagnes",
         "date": "06/11/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 16,
@@ -125,7 +185,11 @@
         "title": "Peindre un nouveau tableau",
         "content": "Utiliser les couleurs vives",
         "date": "07/11/2025",
-        "pref": true
+        "pref": true,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 17,
@@ -133,7 +197,11 @@
         "title": "Faire une séance de sport",
         "content": "Cardio et musculation",
         "date": "08/11/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     },
     {
         "id": 18,
@@ -141,6 +209,10 @@
         "title": "Mise à jour de la documentation",
         "content": "Décrire les dernières fonctionnalités",
         "date": "09/11/2025",
-        "pref": false
+        "pref": false,
+        "images": [],
+        "drawings": [],
+        "voiceNotes": [],
+        "tasks": []
     }
 ]

@@ -1,13 +1,15 @@
-import React, { Component } from 'react';
 import { View } from 'react-native';
-import HomeScreen from './src/pages/HomeScreen';
+import React from 'react';
+//import HomeScreen from './src/pages/HomeScreen';
+import NoteScreen from './src/pages/NoteScreen';
+//import DrawingScreen from './src/pages/DrawingScreen';
 
-export default class App extends Component {
-  render() {
-    return (
-      <View>
-        <HomeScreen />
-      </View>
-    );
-  }
-}
+const App = () => {
+  return (
+    <View>
+      <NoteScreen />
+    </View>
+  );
+};
+
+export default App;
