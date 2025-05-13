@@ -5,7 +5,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import VoiceRecorderBox from '../components/VoiceRecorderBox';
 
 const NoteScreen = ({ navigation }) => {
+
+  // State for the voice recorder
+  // This state controls the visibility of the voice recorder
   const [isRecorderVisible, setIsRecorderVisible] = useState(false);
+
+  // State for the note
+  // This state holds the note data
   const [note, setNote] = useState({
     id: null,
     title: '',
@@ -15,6 +21,10 @@ const NoteScreen = ({ navigation }) => {
     pref: false,
   });
 
+  // ========================================================================== //
+
+  // Save note function
+  // This function is called when the user presses the save button
   const handleSave = async () => {
     if (!note.title.trim()) {
       Alert.alert('Titre requis', 'Veuillez saisir un titre pour votre note');
@@ -22,6 +32,7 @@ const NoteScreen = ({ navigation }) => {
     }
 
     try {
+      // Check if the note has a title
       const noteToSave = {
         ...note,
         id: note.id || Date.now(),
@@ -29,50 +40,74 @@ const NoteScreen = ({ navigation }) => {
         content: note.content.trim(),
       };
 
+      // Save the note to AsyncStorage
       await saveNote(noteToSave);
       Alert.alert('Succès', 'Votre note a été sauvegardée');
+      navigation.navigate('HomePage');
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de sauvegarder la note');
       console.error(error);
     }
   };
 
-  const saveNote = async (note) => {
+  // Save note to AsyncStorage
+  // This function saves the note to AsyncStorage
+  const saveNote = async (noteToSave) => {
     const existingNotes = await AsyncStorage.getItem('notes');
     let notes = existingNotes ? JSON.parse(existingNotes) : [];
 
-    if (note.id) {
-      // Édition : on remplace la note existante
-      notes = notes.map((n) => (n.id === note.id ? note : n));
+    if (noteToSave.id) {
+      notes = notes.map((n) => (n.id === noteToSave.id ? noteToSave : n));
     } else {
-      // Création : on ajoute la nouvelle note
-      notes = [...notes, note];
+      notes = [...notes, noteToSave];
     }
 
     await AsyncStorage.setItem('notes', JSON.stringify(notes));
   };
 
-  // Fonctions pour les outils
+  // Handle speech result
+  // This function is called when the speech recognition result is available
+  const handleSpeechResult = (spokenText) => {
+    setNote(prevNote => ({
+      ...prevNote,
+      content: prevNote.content + (prevNote.content ? ' ' : '') + spokenText,
+    }));
+  };
+
+  // ========================================================================== //
+
+  // Handle category press
+  // This function is called when the user presses the category button
   const handleCategoryPress = () => {
     console.log('Ouvrir sélecteur de catégorie');
   };
 
+  // Handle task press
+  // This function is called when the user presses the task button
   const handleTaskPress = () => {
     console.log('Ajouter une tâche');
   };
 
+  // Handle image press
+  // This function is called when the user presses the image button
   const handleImagePress = () => {
     console.log('Ajouter une image');
   };
 
+  // Handle drawing press
+  // This function is called when the user presses the drawing button
   const handleDrawingPress = () => {
     navigation.navigate('DrawPage');
   };
 
+  // Handle voice press
+  // This function is called when the user presses the voice button
   const handleVoicePress = () => {
     setIsRecorderVisible(!isRecorderVisible);
     console.log('Enregistrer une note vocale');
   };
+
+  // ========================================================================== //
 
   return (
     <View style={styles.container}>
@@ -105,6 +140,7 @@ const NoteScreen = ({ navigation }) => {
         <VoiceRecorderBox
           isVisible={isRecorderVisible}
           onClosePressed={handleVoicePress}
+          onSpeechResult={handleSpeechResult}
         />
       )}
 
