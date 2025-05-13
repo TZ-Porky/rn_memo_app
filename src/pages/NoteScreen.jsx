@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import VoiceRecorderBox from '../components/VoiceRecorderBox';
 
 const NoteScreen = ({ navigation }) => {
-  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [isRecorderVisible, setIsRecorderVisible] = useState(false);
   const [note, setNote] = useState({
     id: null,
     title: '',
@@ -70,7 +70,7 @@ const NoteScreen = ({ navigation }) => {
   };
 
   const handleVoicePress = () => {
-    setShowVoiceRecorder(!showVoiceRecorder);
+    setIsRecorderVisible(!isRecorderVisible);
     console.log('Enregistrer une note vocale');
   };
 
@@ -101,8 +101,11 @@ const NoteScreen = ({ navigation }) => {
         />
       </ScrollView>
 
-      {showVoiceRecorder && (
-        <VoiceRecorderBox onClosePressed={handleVoicePress}/>
+      {isRecorderVisible && (
+        <VoiceRecorderBox
+          isVisible={isRecorderVisible}
+          onClosePressed={handleVoicePress}
+        />
       )}
 
     </View>

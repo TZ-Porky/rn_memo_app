@@ -1,22 +1,36 @@
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import React from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions} from 'react-native';
+import React, { useRef, useEffect } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-const VoiceRecorderBox = ({onClosePressed}) => {
+const { height } = Dimensions.get('window');
+
+const VoiceRecorderBox = ({isVisible, onClosePressed}) => {
+  const slideAnim = useRef(new Animated.Value(height)).current;
+
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: isVisible ? 0 : height,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isVisible, slideAnim]);
+
+  const animatedStyle = {
+    transform: [{ translateY: slideAnim }],
+  };
+
   return (
-    <View>
-      <View style={styles.container}>
-        <View style={styles.toolsContainer}>
-          <TouchableOpacity style={styles.toolsItem}>
-            <Icon name="microphone" style={styles.toolsItemIcon} />
-          </TouchableOpacity>
-          <Text style={styles.toolsItemText}>Appuyer pour enregistrer</Text>
-        </View>
-        <TouchableOpacity style={styles.toolsItem} onPress={onClosePressed}>
-          <Icon name="times" size={20} />
+    <Animated.View style={[styles.container, animatedStyle]}>
+      <View style={styles.toolsContainer}>
+        <TouchableOpacity style={styles.toolsItem}>
+          <Icon name="microphone" style={styles.toolsItemIcon} />
         </TouchableOpacity>
+        <Text style={styles.toolsItemText}>Appuyer pour enregistrer</Text>
       </View>
-    </View>
+      <TouchableOpacity style={styles.closeButton} onPress={onClosePressed}>
+        <Icon name="times" size={20} />
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
@@ -27,10 +41,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 5,
+    padding: 10,
     backgroundColor: '#FFF',
-    borderRadius: 8,
-    margin: 5,
+    borderRadius: 0,
+    margin: 0,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    elevation: 5,
   },
   toolsContainer: {
     margin: 5,
@@ -48,5 +67,8 @@ const styles = StyleSheet.create({
   toolsItemText: {
     fontSize: 12,
     color: '#000',
+  },
+  closeButton: {
+    padding: 5,
   },
 });
