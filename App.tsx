@@ -1,15 +1,23 @@
-import { View } from 'react-native';
 import React from 'react';
-//import HomeScreen from './src/pages/HomeScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from './src/pages/HomeScreen';
 import NoteScreen from './src/pages/NoteScreen';
-//import DrawingScreen from './src/pages/DrawingScreen';
+import DrawingScreen from './src/pages/DrawingScreen';
 
-const App = () => {
+
+const Stack = createNativeStackNavigator();
+
+function App() {
   return (
-    <View>
-      <NoteScreen />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="NotePage" component={NoteScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="DrawPage" component={DrawingScreen} options={{ headerShown: false }} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-};
+}
 
 export default App;

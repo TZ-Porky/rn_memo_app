@@ -6,7 +6,7 @@ import HeaderDrawingBar from '../components/HeaderDrawingBar';
 import Signature from 'react-native-signature-canvas';
 import ToolBoxDrawing from '../components/ToolBoxDrawing';
 
-const DrawingScreen = () => {
+const DrawingScreen = ({navigation}) => {
   const signatureRef = useRef();
   const webviewRef = useRef(null);
   const [color, setColor] = useState('black');
@@ -16,6 +16,10 @@ const DrawingScreen = () => {
 
   const handleClear = () => {
     signatureRef.current?.clearSignature();
+  };
+
+  const handleCancel = () => {
+    navigation.goBack();
   };
 
   const handleSave = () => {
@@ -76,7 +80,7 @@ const DrawingScreen = () => {
   return (
     <View style={styles.container}>
       <HeaderDrawingBar
-        onCancelPress={handleClear}
+        onCancelPress={handleCancel}
         onRestartPress={handleClear}
         onSavePress={handleSave}
       />

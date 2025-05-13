@@ -17,7 +17,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FloatingButton from '../components/FloatingButton';
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   useEffect(() => {
     const loadMemos = async () => {
       try {
@@ -204,7 +204,7 @@ const HomeScreen = () => {
         keyExtractor={item => item.id.toString()}
         style={styles.memoList}
       />
-      <FloatingButton onPress={console.log('Button Pressed!')} title={'+'} />
+      <FloatingButton onPress={() => navigation.navigate('NotePage')} title={'+'} />
     </View>
   );
 };

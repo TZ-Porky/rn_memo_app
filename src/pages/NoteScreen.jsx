@@ -4,7 +4,7 @@ import HeaderNoteBar from '../components/HeaderNoteBar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import VoiceRecorderBox from '../components/VoiceRecorderBox';
 
-const NoteScreen = () => {
+const NoteScreen = ({ navigation }) => {
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const [note, setNote] = useState({
     id: null,
@@ -66,7 +66,7 @@ const NoteScreen = () => {
   };
 
   const handleDrawingPress = () => {
-    console.log('Ouvrir outil de dessin');
+    navigation.navigate('DrawPage');
   };
 
   const handleVoicePress = () => {
