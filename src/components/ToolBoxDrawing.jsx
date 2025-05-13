@@ -37,7 +37,7 @@ const ToolBoxDrawing = ({
       setIsEraser(false);
       setColor(value);
     }
-    // Appel immédiat après le changement d'état
+
     setTimeout(onToolChange, 50);
 
   };
@@ -50,12 +50,7 @@ const ToolBoxDrawing = ({
           style={[styles.eraserButton, isEraser && styles.activeTool]}
           onPress={() => handleToolPress('eraser')}>
           <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 5,
-              alignItems: 'center',
-            }}>
+            style={styles.toolSelection}>
             <Icon name="eraser" size={20} />
             <Text style={styles.buttonText}>Gomme</Text>
           </View>
@@ -64,12 +59,7 @@ const ToolBoxDrawing = ({
           style={[styles.eraserButton, !isEraser && styles.activeTool]}
           onPress={() => handleToolPress('pencil')}>
           <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 5,
-              alignItems: 'center',
-            }}>
+            style={styles.toolSelection}>
             <Icon name="pen" size={20} />
             <Text style={styles.buttonText}>Crayon</Text>
           </View>
@@ -130,6 +120,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 1,
     elevation: 1,
+  },
+  toolSelection: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center',
   },
   sectionTitle: {
     textAlign: 'left',

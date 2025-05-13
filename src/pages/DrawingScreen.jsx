@@ -14,9 +14,9 @@ const DrawingScreen = ({navigation}) => {
   const [isEraser, setIsEraser] = useState(false);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
 
-  const handleClear = () => {
+  function handleClear() {
     signatureRef.current?.clearSignature();
-  };
+  }
 
   const handleCancel = () => {
     navigation.goBack();
@@ -66,16 +66,9 @@ const DrawingScreen = ({navigation}) => {
     }
   }, [handleToolChange, isWebViewReady]);
 
-  // Applique les changements immédiatement
   useEffect(() => {
     handleToolChange();
   }, [handleToolChange]);
-
-  const handleWebViewLoad = () => {
-    setIsWebViewReady(true);
-    handleToolChange();
-  };
-
 
   return (
     <View style={styles.container}>

@@ -22,7 +22,7 @@ const HomeScreen = ({navigation}) => {
     const loadMemos = async () => {
       try {
         const savedMemos = await AsyncStorage.getItem('memos');
-        if (savedMemos) setMemos(JSON.parse(savedMemos));
+        if (savedMemos) {setMemos(JSON.parse(savedMemos));}
       } catch (error) {
         console.error('Erreur de chargement', error);
       }
@@ -51,7 +51,6 @@ const HomeScreen = ({navigation}) => {
   const allMemos = memos;
 
   const categories = [...new Set(memos.map(memo => memo.category))];
-  const data = categories.map(label => ({label, value: label}));
 
   const filteredMemos = useMemo(() => {
     let result =
@@ -89,15 +88,15 @@ const HomeScreen = ({navigation}) => {
     }
   };
 
-  const renderHiddenItem = (data, rowMap) => (
+  const renderHiddenItem = (rowData, rowMap) => (
     <View style={styles.rowBack}>
       <TouchableOpacity
         style={[styles.backRightBtn, styles.backRightBtnRight]}
         onPress={() => {
-          setDeletedRowKeys(prev => [...prev, data.item.id.toString()]);
+          setDeletedRowKeys(prev => [...prev, rowData.item.id.toString()]);
           setMemos(prevMemos =>
             prevMemos.filter(
-              memo => memo.id.toString() !== data.item.id.toString(),
+              memo => memo.id.toString() !== rowData.item.id.toString(),
             ),
           );
         }}>
