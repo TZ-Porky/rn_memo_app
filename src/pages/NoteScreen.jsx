@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   TextInput,
@@ -7,11 +7,15 @@ import {
   Alert,
   Image,
   TouchableOpacity,
+  BackHandler,
 } from 'react-native';
-import HeaderNoteBar from '../components/HeaderNoteBar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import VoiceRecorderBox from '../components/VoiceRecorderBox';
+
+import {useFocusEffect} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+
+import HeaderNoteBar from '../components/HeaderNoteBar';
+import VoiceRecorderBox from '../components/VoiceRecorderBox';
+import { getNotes, saveNote } from '../services/NoteServices';
 
 const NoteScreen = ({navigation, route}) => {
   // State for the voice recorder
@@ -28,9 +32,10 @@ const NoteScreen = ({navigation, route}) => {
     id: null,
     title: '',
     content: '',
-    category: 'Catégorie',
+    category: 'Aucune',
     date: new Date().toLocaleDateString('fr-FR'),
     pref: false,
+    drawing: null,
   });
 
   // ========================================================================== //
@@ -45,11 +50,54 @@ const NoteScreen = ({navigation, route}) => {
     }
   }, [route.params?.drawingData]);
 
-  // ========================================================================== //
+  // This function is called when the component mounts
+  // It navigate to HomeScreen when the user press the Back Button
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        navigation.navigate('Home', { refresh: true });
+        return true;
+      };
 
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress
+      );
+
+      return () => {
+        subscription.remove();
+      };
+    }, [navigation]),
+  );
+
+  // This function is called when the component mounts
+  // It will load a note if receives an ID from params
+  useEffect(() => {
+    const loadNote = async () => {
+      if (route.params?.noteId) {
+        try {
+          const notes = await getNotes();
+          const existingNote = notes.find(n => n.id === route.params.noteId);
+          if (existingNote) {
+            setNote(existingNote);
+            if (existingNote.drawing) {
+              setDrawing(existingNote.drawing);
+            }
+          }
+        } catch (error) {
+          console.error('Erreur lors du chargement de la note', error);
+        }
+      }
+    };
+
+    loadNote();
+  }, [route.params?.noteId]);
+
+  // ========================================================================== //
   // Save note function
   // This function is called when the user presses the save button
   const handleSave = async () => {
+    console.log('Sauvegarde déclenchée');
     if (!note.title.trim()) {
       Alert.alert('Titre requis', 'Veuillez saisir un titre pour votre note');
       return;
@@ -59,35 +107,23 @@ const NoteScreen = ({navigation, route}) => {
       // Check if the note has a title
       const noteToSave = {
         ...note,
-        id: note.id || Date.now(),
         title: note.title.trim(),
         content: note.content.trim(),
+        drawing: drawing || null,
       };
 
       // Save the note to AsyncStorage
       await saveNote(noteToSave);
+      console.log('Note sauvegardée:', noteToSave);
       Alert.alert('Succès', 'Votre note a été sauvegardée');
-      navigation.navigate('HomePage');
+      navigation.navigate('Home', { refresh: true });
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de sauvegarder la note');
       console.error(error);
     }
   };
 
-  // Save note to AsyncStorage
-  // This function saves the note to AsyncStorage
-  const saveNote = async noteToSave => {
-    const existingNotes = await AsyncStorage.getItem('notes');
-    let notes = existingNotes ? JSON.parse(existingNotes) : [];
-
-    if (noteToSave.id) {
-      notes = notes.map(n => (n.id === noteToSave.id ? noteToSave : n));
-    } else {
-      notes = [...notes, noteToSave];
-    }
-
-    await AsyncStorage.setItem('notes', JSON.stringify(notes));
-  };
+  // ========================================================================== //
 
   // Handle speech result
   // This function is called when the speech recognition result is available
@@ -95,6 +131,17 @@ const NoteScreen = ({navigation, route}) => {
     setNote(prevNote => ({
       ...prevNote,
       content: prevNote.content + (prevNote.content ? ' ' : '') + spokenText,
+    }));
+  };
+
+  // Handle Drawing Delete Icon Press
+  // This function is called when the user presses the times icon button on drawing
+  const handleDeleteDrawing = () => {
+    console.log('Drawing Deleted !');
+    setDrawing(null);
+    setNote(prevNote => ({
+      ...prevNote,
+      drawing: null,
     }));
   };
 
@@ -129,13 +176,6 @@ const NoteScreen = ({navigation, route}) => {
   const handleVoicePress = () => {
     setIsRecorderVisible(!isRecorderVisible);
     console.log('Enregistrer une note vocale');
-  };
-
-  // Handle Drawing Delete Icon Press
-  // This function is called when the user presses the times icon button on drawing
-  const handleDeleteDrawing = () => {
-    console.log('Drawing Deleted !');
-    setDrawing(null);
   };
 
   // ========================================================================== //

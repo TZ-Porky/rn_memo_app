@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback, useMemo} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   View,
   StyleSheet,
@@ -6,105 +6,189 @@ import {
   Text,
   TextInput,
   Modal,
+  BackHandler,
+  Alert,
 } from 'react-native';
 
 import HeaderBar from '../components/HeaderBar';
-import MemoData from '../data/memos.json';
 import MemoCard from '../models/MemoCard';
 
+import {useFocusEffect} from '@react-navigation/native';
 import {SwipeListView} from 'react-native-swipe-list-view';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FloatingButton from '../components/FloatingButton';
 
+import {getNotes, deleteNote} from '../services/NoteServices';
+
 const HomeScreen = ({navigation}) => {
-  useEffect(() => {
-    const loadMemos = async () => {
-      try {
-        const savedMemos = await AsyncStorage.getItem('memos');
-        if (savedMemos) {setMemos(JSON.parse(savedMemos));}
-      } catch (error) {
-        console.error('Erreur de chargement', error);
-      }
-    };
-    loadMemos();
-  }, []);
+  // State to manage the memos
+  // This state holds the list of notes fetched from AsyncStorage
+  const [notes, setNotes] = useState([]);
 
-  useEffect(() => {
-    const saveMemos = async () => {
-      try {
-        await AsyncStorage.setItem('memos', JSON.stringify(memos));
-      } catch (error) {
-        console.error('Erreur de sauvegarde', error);
-      }
-    };
-    saveMemos();
-  }, [memos]);
-
-  const [memos, setMemos] = useState(MemoData);
+  // State to manage categories
+  // This state holds the selected category for filtering notes
   const [selectedCategory, setSelectedCategory] = useState('Tous les mémos');
+
+  // State to manage the categories modal
+  // This state controls the visibility of the category selection modal
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+
+  // State to manage the visibility of the search bar
+  // This state controls whether the search bar is shown or hidden
   const [showSearch, setShowSearch] = useState(false);
+
+  // State to hold the search text
+  // This state is used to filter notes based on the search input
   const [searchText, setSearchText] = useState('');
+
+  // State to track the deleted row keys
+  // This state is used to manage the swipe-to-delete functionality
+  // It holds the keys of the rows that have been deleted
   const [deletedRowKeys, setDeletedRowKeys] = useState([]);
 
-  const allMemos = memos;
+  // ================================================================================== //
 
-  const categories = [...new Set(memos.map(memo => memo.category))];
+  // Effect to load notes from AsyncStorage when the component mounts
+  // This effect also sets up a listener to reload notes when the screen is focused
+  useEffect(() => {
+    const loadNotes = async () => {
+      try {
+        const loadedNotes = await getNotes();
+        setNotes(loadedNotes);
+        console.log('Notes chargées depuis AsyncStorage:', loadedNotes);
+        // Vérifiez aussi la clé 'notes' directement
+        const rawData = await AsyncStorage.getItem('notes');
+        console.log('Données brutes dans AsyncStorage:', rawData);
+      } catch (error) {
+        console.error('Erreur de chargement des notes', error);
+      }
+    };
 
-  const filteredMemos = useMemo(() => {
-    let result =
-      selectedCategory === 'Tous les mémos'
-        ? allMemos
-        : allMemos.filter(memo => memo.category === selectedCategory);
+    const unsubscribe = navigation.addListener('focus', loadNotes);
+    loadNotes();
+
+    return unsubscribe;
+  }, [navigation]);
+
+  // ==================================================================================== //
+
+  // Setting the default selected category when the component mounts
+  // This effect sets the selected category to 'Tous les mémos' when the component mounts
+  const categories = [...new Set(notes.map(note => note.category))];
+
+  // Filter notes based on the selected category and search text
+  // This function uses useMemo to optimize performance by memoizing the result
+  const filteredNotes = useMemo(() => {
+    let result = notes;
+
+    if (selectedCategory === 'Favoris') {
+      result = result.filter(note => note.pref);
+    } else if (selectedCategory !== 'Tous les mémos') {
+      result = result.filter(note => note.category === selectedCategory);
+    }
 
     if (searchText) {
       const searchLower = searchText.toLowerCase();
       result = result.filter(
-        memo =>
-          memo.title.toLowerCase().includes(searchLower) ||
-          memo.content.toLowerCase().includes(searchLower),
+        note =>
+          note.title.toLowerCase().includes(searchLower) ||
+          note.content.toLowerCase().includes(searchLower),
       );
     }
 
     return result;
-  }, [selectedCategory, searchText, allMemos]);
+  }, [notes, selectedCategory, searchText]);
 
-  const toggleFavorite = useCallback(id => {
-    setMemos(prevMemos =>
-      prevMemos.map(memo =>
-        memo.id === id ? {...memo, pref: !memo.pref} : memo,
-      ),
-    );
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          "Quitter l'application",
+          "Êtes-vous sûr de vouloir quitter l'application ?",
+          [
+            {
+              text: 'Annuler',
+              onPress: () => console.log('Annulation du quitter'),
+              style: 'cancel',
+            },
+            {text: 'Oui', onPress: () => BackHandler.exitApp()},
+          ],
+          {cancelable: false},
+        );
+        return true;
+      };
 
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress,
+      );
+
+      return () => {
+        subscription.remove();
+      };
+    }, []),
+  );
+
+  // ==================================================================================== //
+
+  // Function to delete a note
+  // This function removes the note from the state and updates AsyncStorage
+  const handleDeleteNote = async id => {
+    try {
+      await deleteNote(id);
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
+    } catch (error) {
+      console.error('Erreur lors de la suppression', error);
+    }
+  };
+
+  // Function to handle the swipe action
+  // This function checks if the swipe value is less than -200 and deletes the note
   const onSwipeValueChange = swipeData => {
     const {key, value} = swipeData;
     if (value < -200 && !deletedRowKeys.includes(key)) {
       setDeletedRowKeys(prev => [...prev, key]);
-      setMemos(prevMemos =>
-        prevMemos.filter(memo => memo.id.toString() !== key),
-      );
+      handleDeleteNote(parseInt(key, 10));
     }
   };
 
+  const toggleFavorite = async id => {
+    try {
+      // 1. Met à jour le state immédiatement
+      setNotes(prevNotes => {
+        const updatedNotes = prevNotes.map(note =>
+          note.id === id ? {...note, pref: !note.pref} : note,
+        );
+        return updatedNotes;
+      });
+
+      // 2. Sauvegarde en AsyncStorage (en arrière-plan)
+      const notes = await getNotes();
+      const updatedNotes = notes.map(note =>
+        note.id === id ? {...note, pref: !note.pref} : note,
+      );
+      await AsyncStorage.setItem('notes', JSON.stringify(updatedNotes));
+    } catch (error) {
+      console.error('Erreur toggleFavorite:', error);
+    }
+  };
+
+  // Function to render the hidden item (delete button) in the swipe list
+  // This function uses the rowData and rowMap to identify the note to delete
+  // and the corresponding row map
   const renderHiddenItem = (rowData, rowMap) => (
     <View style={styles.rowBack}>
       <TouchableOpacity
         style={[styles.backRightBtn, styles.backRightBtnRight]}
-        onPress={() => {
-          setDeletedRowKeys(prev => [...prev, rowData.item.id.toString()]);
-          setMemos(prevMemos =>
-            prevMemos.filter(
-              memo => memo.id.toString() !== rowData.item.id.toString(),
-            ),
-          );
-        }}>
+        onPress={() => handleDeleteNote(rowData.item.id)}>
         <Icon name="trash" size={25} style={styles.backTextWhite} />
       </TouchableOpacity>
     </View>
   );
 
+  // Function to render the memo card
+  // This function uses the MemoCard component to display each note
   const renderItem = ({item}) => (
     <MemoCard
       memo={item}
@@ -113,24 +197,34 @@ const HomeScreen = ({navigation}) => {
     />
   );
 
+  // Function to handle the category button press
+  // This function opens the category modal
   const handleCategoryPress = () => {
     setShowCategoryModal(true);
   };
 
+  // Function to handle the search input
+  // This function updates the search text and debounces the input
   const handleSearch = text => {
     setSearchText(text);
     debounce(() => setSearchText(text), 300)();
   };
 
+  // Function to handle the menu button press
+  // This function can be used to open a side menu or perform other actions
   const handleMenuPress = () => {
     console.log('Menu pressed');
   };
 
+  // Function to select a category from the modal
+  // This function updates the selected category and closes the modal
   const selectCategory = category => {
     setSelectedCategory(category);
     setShowCategoryModal(false);
   };
 
+  // Function to debounce the search input
+  // This function prevents the search input from firing too frequently
   function debounce(fn, delay) {
     let timer;
     return function () {
@@ -138,6 +232,8 @@ const HomeScreen = ({navigation}) => {
       timer = setTimeout(() => fn.apply(this, arguments), delay);
     };
   }
+
+  // ================================================================================== //
 
   return (
     <View style={styles.container}>
@@ -161,9 +257,8 @@ const HomeScreen = ({navigation}) => {
             <TouchableOpacity
               activeOpacity={1}
               style={styles.modalContent}
-              onPress={() => {}} // Empêche la fermeture quand on clique à l'intérieur
-            >
-              {['Tous les mémos', ...categories].map(cat => (
+              onPress={() => {}}>
+              {['Tous les mémos', 'Favoris', ...categories].map(cat => (
                 <TouchableOpacity
                   key={cat}
                   style={styles.categoryItem}
@@ -187,7 +282,7 @@ const HomeScreen = ({navigation}) => {
       )}
 
       <SwipeListView
-        data={filteredMemos}
+        data={filteredNotes}
         renderItem={renderItem}
         renderHiddenItem={renderHiddenItem}
         rightOpenValue={-90}
@@ -203,7 +298,11 @@ const HomeScreen = ({navigation}) => {
         keyExtractor={item => item.id.toString()}
         style={styles.memoList}
       />
-      <FloatingButton onPress={() => navigation.navigate('NotePage')} title={'+'} />
+
+      <FloatingButton
+        onPress={() => navigation.navigate('NotePage')}
+        title={'+'}
+      />
     </View>
   );
 };

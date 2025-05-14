@@ -15,7 +15,7 @@ const MemoCard = React.memo(({memo, onToggleFavorite}) => {
           <Icon
             name="star"
             size={20}
-            color={memo.pref ? "#FFD700" : "#CCC"}
+            color={memo.pref ? '#FFD700' : '#CCC'}
             solid={memo.pref}
             light={!memo.pref}
           />
@@ -26,9 +26,9 @@ const MemoCard = React.memo(({memo, onToggleFavorite}) => {
     </View>
   );
 }, (prevProps, nextProps) => {
-  return prevProps.memo.pref === nextProps.memo.pref 
-    && prevProps.memo.title === nextProps.memo.title
-    && prevProps.memo.content === nextProps.memo.content;
+  return prevProps.memo.title === nextProps.memo.title
+    && prevProps.memo.content === nextProps.memo.content
+    && prevProps.memo.date === nextProps.memo.date;
 });
 
 export default MemoCard;
