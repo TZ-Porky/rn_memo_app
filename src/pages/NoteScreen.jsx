@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import HeaderNoteBar from '../components/HeaderNoteBar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import VoiceRecorderBox from '../components/VoiceRecorderBox';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
-const NoteScreen = ({ navigation }) => {
-
+const NoteScreen = ({navigation, route}) => {
   // State for the voice recorder
   // This state controls the visibility of the voice recorder
   const [isRecorderVisible, setIsRecorderVisible] = useState(false);
+
+  // State for the drawing
+  // This state controls the visibility of the drawing canvas
+  const [drawing, setDrawing] = useState(null);
 
   // State for the note
   // This state holds the note data
@@ -20,6 +32,18 @@ const NoteScreen = ({ navigation }) => {
     date: new Date().toLocaleDateString('fr-FR'),
     pref: false,
   });
+
+  // ========================================================================== //
+
+  // This function is called when the component mounts
+  // It checks if there is any drawing data passed from the previous screen
+  useEffect(() => {
+    if (route.params?.drawingData) {
+      console.log('[NoteScreen] Donnée reçue pour le dessin :');
+      console.log(route.params.drawingData.slice(0, 100));
+      setDrawing(route.params.drawingData);
+    }
+  }, [route.params?.drawingData]);
 
   // ========================================================================== //
 
@@ -52,12 +76,12 @@ const NoteScreen = ({ navigation }) => {
 
   // Save note to AsyncStorage
   // This function saves the note to AsyncStorage
-  const saveNote = async (noteToSave) => {
+  const saveNote = async noteToSave => {
     const existingNotes = await AsyncStorage.getItem('notes');
     let notes = existingNotes ? JSON.parse(existingNotes) : [];
 
     if (noteToSave.id) {
-      notes = notes.map((n) => (n.id === noteToSave.id ? noteToSave : n));
+      notes = notes.map(n => (n.id === noteToSave.id ? noteToSave : n));
     } else {
       notes = [...notes, noteToSave];
     }
@@ -67,7 +91,7 @@ const NoteScreen = ({ navigation }) => {
 
   // Handle speech result
   // This function is called when the speech recognition result is available
-  const handleSpeechResult = (spokenText) => {
+  const handleSpeechResult = spokenText => {
     setNote(prevNote => ({
       ...prevNote,
       content: prevNote.content + (prevNote.content ? ' ' : '') + spokenText,
@@ -107,6 +131,13 @@ const NoteScreen = ({ navigation }) => {
     console.log('Enregistrer une note vocale');
   };
 
+  // Handle Drawing Delete Icon Press
+  // This function is called when the user presses the times icon button on drawing
+  const handleDeleteDrawing = () => {
+    console.log('Drawing Deleted !');
+    setDrawing(null);
+  };
+
   // ========================================================================== //
 
   return (
@@ -124,15 +155,26 @@ const NoteScreen = ({ navigation }) => {
         style={styles.titleBar}
         placeholder="Saisir un titre"
         value={note.title}
-        onChangeText={(text) => setNote({ ...note, title: text })}
+        onChangeText={text => setNote({...note, title: text})}
       />
 
       <ScrollView style={styles.contentArea}>
+        {drawing && (
+          <View style={styles.contentImageContainer}>
+            <Image source={{uri: drawing}} style={styles.contentImage} />
+            <TouchableOpacity
+              onPress={handleDeleteDrawing}
+              style={styles.contentImageCloseButton}>
+              <Icon name="times" size={20} />
+            </TouchableOpacity>
+          </View>
+        )}
+
         <TextInput
           multiline={true}
           placeholder="Saisir un mémo"
           value={note.content}
-          onChangeText={(text) => setNote({ ...note, content: text })}
+          onChangeText={text => setNote({...note, content: text})}
         />
       </ScrollView>
 
@@ -143,7 +185,6 @@ const NoteScreen = ({ navigation }) => {
           onSpeechResult={handleSpeechResult}
         />
       )}
-
     </View>
   );
 };
@@ -181,5 +222,28 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     fontSize: 16,
     elevation: 0,
+  },
+  contentImageContainer: {
+    position: 'relative',
+    width: 200,
+    height: 200,
+    marginBottom: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 1,
+  },
+  contentImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    overflow: 'hidden',
+  },
+  contentImageCloseButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    padding: 5,
+    borderRadius: 5,
   },
 });

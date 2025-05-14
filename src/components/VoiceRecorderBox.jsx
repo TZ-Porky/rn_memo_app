@@ -16,7 +16,6 @@ import Voice from '@react-native-voice/voice';
 const {height} = Dimensions.get('window');
 
 const VoiceRecorderBox = ({isVisible, onClosePressed, onSpeechResult}) => {
-
   // Animated value for the slide animation
   // This value will be used to animate the position of the component
   const slideAnim = useRef(new Animated.Value(height)).current;
@@ -33,9 +32,10 @@ const VoiceRecorderBox = ({isVisible, onClosePressed, onSpeechResult}) => {
   // This state will indicate whether the recording is in progress or not
   const [isRecording, setIsRecording] = React.useState(false);
 
+  // ================================================================== //
+
   // This function is called when the component mounts
   useEffect(() => {
-
     // Initialize Voice
     // This function is called to initialize the Voice library
     Voice.onSpeechStart = () => setIsRecording(true);
@@ -67,6 +67,25 @@ const VoiceRecorderBox = ({isVisible, onClosePressed, onSpeechResult}) => {
       Voice.destroy().then(Voice.removeAllListeners);
     };
   }, [onSpeechResult]);
+
+  // Animate the position
+  // This function is called to animate the position of the component
+  // It uses the Animated API to create a slide effect
+  // The component will slide up when isVisible is true and slide down when it is false
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: isVisible ? 0 : height,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isVisible, slideAnim]);
+
+  // This function is called when the close button is pressed
+  const animatedStyle = {
+    transform: [{translateY: slideAnim}],
+  };
+
+  // ================================================================== //
 
   // Request microphone permission for Android
   // This function is called to request permission to access the microphone
@@ -132,22 +151,7 @@ const VoiceRecorderBox = ({isVisible, onClosePressed, onSpeechResult}) => {
     }
   };
 
-  // Animate the position
-  // This function is called to animate the position of the component
-  // It uses the Animated API to create a slide effect
-  // The component will slide up when isVisible is true and slide down when it is false
-  useEffect(() => {
-    Animated.timing(slideAnim, {
-      toValue: isVisible ? 0 : height,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  }, [isVisible, slideAnim]);
-
-  // This function is called when the close button is pressed
-  const animatedStyle = {
-    transform: [{translateY: slideAnim}],
-  };
+  // ================================================================== //
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>

@@ -1,4 +1,4 @@
-import {StyleSheet, View, Alert} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React, {useRef, useState, useEffect, useCallback} from 'react';
 
 import HeaderDrawingBar from '../components/HeaderDrawingBar';
@@ -7,6 +7,7 @@ import Signature from 'react-native-signature-canvas';
 import ToolBoxDrawing from '../components/ToolBoxDrawing';
 
 const DrawingScreen = ({navigation}) => {
+
   const signatureRef = useRef();
   const webviewRef = useRef(null);
   const [color, setColor] = useState('black');
@@ -24,7 +25,6 @@ const DrawingScreen = ({navigation}) => {
 
   const handleSave = () => {
     signatureRef.current?.readSignature();
-    Alert.alert('Dessin enregistré !');
   };
 
   const injectDrawingSettings = useCallback(() => {
@@ -92,7 +92,10 @@ const DrawingScreen = ({navigation}) => {
       <Signature
           key={`${color}-${size}-${isEraser}`}
           ref={signatureRef}
-          onOK={sig => console.log('Dessin enregistré', sig)}
+          onOK={sig => {
+            console.log('[DrawingScreen] Signature capturée :', sig.slice(0, 100));
+            navigation.navigate('NotePage', { drawingData: sig });
+          }}
           onEmpty={() => console.log('Canevas vide')}
           descriptionText="Dessinez ci-dessous"
           webStyle={`
