@@ -16,11 +16,17 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import HeaderNoteBar from '../components/HeaderNoteBar';
 import VoiceRecorderBox from '../components/VoiceRecorderBox';
 import {getNotes, saveNote} from '../services/NoteServices';
+import CategorySelector from '../components/CategorySelector';
 
 const NoteScreen = ({navigation, route}) => {
   // State for the voice recorder
   // This state controls the visibility of the voice recorder
   const [isRecorderVisible, setIsRecorderVisible] = useState(false);
+
+  // State for the category selector
+  // This state controls the visibility of the category selector
+  const [isCategorySelectorVisible, setIsCategorySelectorVisible] =
+    useState(false);
 
   // State for the modified state
   // This state controls if the note has been modified
@@ -177,7 +183,7 @@ const NoteScreen = ({navigation, route}) => {
   // Handle category press
   // This function is called when the user presses the category button
   const handleCategoryPress = () => {
-    console.log('Ouvrir sélecteur de catégorie');
+    setIsCategorySelectorVisible(!isCategorySelectorVisible);
   };
 
   // Handle task press
@@ -221,6 +227,16 @@ const NoteScreen = ({navigation, route}) => {
         onVoicePress={handleVoicePress}
       />
 
+      {isCategorySelectorVisible && (
+        <CategorySelector
+          selectedCategory={note.category}
+          onSelect={category => {
+            setNote({...note, category});
+            setIsModified(true);
+          }}
+        />
+      )}
+
       <TextInput
         style={styles.titleBar}
         placeholder="Saisir un titre"
@@ -233,7 +249,10 @@ const NoteScreen = ({navigation, route}) => {
 
       <ScrollView style={styles.contentArea}>
         {note.drawing && (
-          <TouchableOpacity style={styles.contentImageContainer} activeOpacity={1} onPress={handleDrawingPress}>
+          <TouchableOpacity
+            style={styles.contentImageContainer}
+            activeOpacity={1}
+            onPress={handleDrawingPress}>
             <Image source={{uri: note.drawing}} style={styles.contentImage} />
             <TouchableOpacity
               onPress={handleDeleteDrawing}
@@ -250,7 +269,7 @@ const NoteScreen = ({navigation, route}) => {
           onChangeText={text => {
             setNote({...note, content: text});
             setIsModified(true);
-        }}
+          }}
         />
       </ScrollView>
 
