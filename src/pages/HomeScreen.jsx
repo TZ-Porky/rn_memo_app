@@ -57,7 +57,6 @@ const HomeScreen = ({navigation}) => {
         const loadedNotes = await getNotes();
         setNotes(loadedNotes);
         console.log('Notes chargées depuis AsyncStorage:', loadedNotes);
-        // Vérifiez aussi la clé 'notes' directement
         const rawData = await AsyncStorage.getItem('notes');
         console.log('Données brutes dans AsyncStorage:', rawData);
       } catch (error) {
@@ -100,6 +99,9 @@ const HomeScreen = ({navigation}) => {
     return result;
   }, [notes, selectedCategory, searchText]);
 
+  // Handle back button press to show an alert before exiting the app
+  // This function uses useFocusEffect to set up the back button listener
+  // and show an alert when the back button is pressed
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
@@ -153,19 +155,22 @@ const HomeScreen = ({navigation}) => {
     }
   };
 
+  // Function to toggle the favorite status of a note
+  // This function updates the state of the notes and AsyncStorage
   const toggleFavorite = async id => {
     try {
-      // 1. Met à jour le state immédiatement
+      // Set the favorite status of the note
+      // This function updates the state of the notes and AsyncStorage
       setNotes(prevNotes => {
         const updatedNotes = prevNotes.map(note =>
           note.id === id ? {...note, pref: !note.pref} : note,
         );
         return updatedNotes;
       });
-
-      // 2. Sauvegarde en AsyncStorage (en arrière-plan)
-      const notes = await getNotes();
-      const updatedNotes = notes.map(note =>
+      // Update AsyncStorage with the new notes array
+      // This function fetches the notes from AsyncStorage and updates the favorite status
+      const savedNotes = await getNotes();
+      const updatedNotes = savedNotes.map(note =>
         note.id === id ? {...note, pref: !note.pref} : note,
       );
       await AsyncStorage.setItem('notes', JSON.stringify(updatedNotes));
@@ -190,11 +195,15 @@ const HomeScreen = ({navigation}) => {
   // Function to render the memo card
   // This function uses the MemoCard component to display each note
   const renderItem = ({item}) => (
-    <MemoCard
-      memo={item}
-      onToggleFavorite={toggleFavorite}
-      key={item.id.toString()}
-    />
+    <TouchableOpacity
+      onPress={() => navigation.navigate('NotePage', {noteId: item.id})}
+      activeOpacity={1}>
+      <MemoCard
+        memo={item}
+        onToggleFavorite={toggleFavorite}
+        key={item.id.toString()}
+      />
+    </TouchableOpacity>
   );
 
   // Function to handle the category button press

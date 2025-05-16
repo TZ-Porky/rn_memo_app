@@ -15,7 +15,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import HeaderNoteBar from '../components/HeaderNoteBar';
 import VoiceRecorderBox from '../components/VoiceRecorderBox';
-import { getNotes, saveNote } from '../services/NoteServices';
+import {getNotes, saveNote} from '../services/NoteServices';
 
 const NoteScreen = ({navigation, route}) => {
   // State for the voice recorder
@@ -25,6 +25,11 @@ const NoteScreen = ({navigation, route}) => {
   // State for the drawing
   // This state controls the visibility of the drawing canvas
   const [drawing, setDrawing] = useState(null);
+
+  // State for the modified state
+  // This state controls if the note has been modified
+  // It is used to show an alert when the user tries to leave the screen
+  const [isModified, setIsModified] = useState(false);
 
   // State for the note
   // This state holds the note data
@@ -55,13 +60,13 @@ const NoteScreen = ({navigation, route}) => {
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
-        navigation.navigate('Home', { refresh: true });
+        navigation.navigate('Home', {refresh: true});
         return true;
       };
 
       const subscription = BackHandler.addEventListener(
         'hardwareBackPress',
-        onBackPress
+        onBackPress,
       );
 
       return () => {
@@ -93,6 +98,28 @@ const NoteScreen = ({navigation, route}) => {
     loadNote();
   }, [route.params?.noteId]);
 
+  // This function is called when the user modifies the note
+  // It sets the isModified state to true
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', e => {
+      if (!isModified) {
+        return;
+      }
+
+      e.preventDefault();
+      Alert.alert(
+        'Quitter sans sauvegarder ?',
+        'Vous avez des modifications non enregistrées',
+        [
+          {text: 'Annuler', style: 'cancel'},
+          {text: 'Quitter', onPress: () => navigation.dispatch(e.data.action)},
+        ],
+      );
+    });
+
+    return unsubscribe;
+  }, [navigation, isModified]);
+
   // ========================================================================== //
   // Save note function
   // This function is called when the user presses the save button
@@ -104,7 +131,7 @@ const NoteScreen = ({navigation, route}) => {
     }
 
     try {
-      // Check if the note has a title
+      // Check if the note already exists
       const noteToSave = {
         ...note,
         title: note.title.trim(),
@@ -112,11 +139,11 @@ const NoteScreen = ({navigation, route}) => {
         drawing: drawing || null,
       };
 
-      // Save the note to AsyncStorage
+      // If the note already exists, update it
       await saveNote(noteToSave);
       console.log('Note sauvegardée:', noteToSave);
       Alert.alert('Succès', 'Votre note a été sauvegardée');
-      navigation.navigate('Home', { refresh: true });
+      navigation.navigate('Home', {refresh: true});
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de sauvegarder la note');
       console.error(error);
@@ -195,7 +222,10 @@ const NoteScreen = ({navigation, route}) => {
         style={styles.titleBar}
         placeholder="Saisir un titre"
         value={note.title}
-        onChangeText={text => setNote({...note, title: text})}
+        onChangeText={text => {
+          setNote({...note, title: text});
+          setIsModified(true);
+        }}
       />
 
       <ScrollView style={styles.contentArea}>
@@ -214,7 +244,10 @@ const NoteScreen = ({navigation, route}) => {
           multiline={true}
           placeholder="Saisir un mémo"
           value={note.content}
-          onChangeText={text => setNote({...note, content: text})}
+          onChangeText={text => {
+            setNote({...note, content: text});
+            setIsModified(true);
+        }}
         />
       </ScrollView>
 
