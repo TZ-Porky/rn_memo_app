@@ -305,7 +305,7 @@ const HomeScreen = ({navigation}) => {
           style={styles.modalOverlay}
           activeOpacity={1}
           onPressOut={() => setIsRefreshModalVisible(false)}>
-          <View style={styles.modalOptionContainer}>
+          <View style={styles.modalContainerOption}>
             <TouchableOpacity
               activeOpacity={1}
               style={styles.modalContent}
@@ -313,10 +313,11 @@ const HomeScreen = ({navigation}) => {
               <TouchableOpacity
                 style={styles.modalOption}
                 onPress={() => {
+                  setNotes([]);
                   loadNotes();
                   setIsRefreshModalVisible(false);
                 }}>
-                <Text>Actualiser l'écran</Text>
+                <Text>Actualiser</Text>
               </TouchableOpacity>
             </TouchableOpacity>
           </View>
@@ -398,11 +399,18 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   modalContainer: {
-    marginTop: 50,
+    marginTop: 10,
     backgroundColor: 'white',
     padding: 5,
     borderRadius: 5,
     marginRight: 100,
+  },
+  modalContainerOption: {
+    marginTop: 10,
+    backgroundColor: 'white',
+    padding: 5,
+    borderRadius: 5,
+    marginLeft: 100,
   },
   categoryItem: {
     padding: 15,
@@ -418,22 +426,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
     elevation: 2,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalOptionContainer: {
-    marginTop: 50,
-    backgroundColor: 'white',
-    padding: 5,
-    borderRadius: 5,
-    marginLeft: 100,
-  },
-  modalContent: {
-    padding: 10,
   },
   modalOption: {
     flexDirection: 'row',
