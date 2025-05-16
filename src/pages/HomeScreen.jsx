@@ -47,6 +47,10 @@ const HomeScreen = ({navigation}) => {
   // It holds the keys of the rows that have been deleted
   const [deletedRowKeys, setDeletedRowKeys] = useState([]);
 
+  // State to manage the refresh modal
+  // This state controls the visibility of the refresh modal
+  const [isRefreshModalVisible, setIsRefreshModalVisible] = useState(false);
+
   // ================================================================================== //
 
   // Effect to load notes from AsyncStorage when the component mounts
@@ -69,6 +73,18 @@ const HomeScreen = ({navigation}) => {
 
     return unsubscribe;
   }, [navigation]);
+
+  const loadNotes = async () => {
+    try {
+      const loadedNotes = await getNotes();
+      setNotes(loadedNotes);
+      console.log('Notes chargées depuis AsyncStorage:', loadedNotes);
+      const rawData = await AsyncStorage.getItem('notes');
+      console.log('Données brutes dans AsyncStorage:', rawData);
+    } catch (error) {
+      console.error('Erreur de chargement des notes', error);
+    }
+  };
 
   // ==================================================================================== //
 
@@ -222,7 +238,7 @@ const HomeScreen = ({navigation}) => {
   // Function to handle the menu button press
   // This function can be used to open a side menu or perform other actions
   const handleMenuPress = () => {
-    console.log('Menu pressed');
+    setIsRefreshModalVisible(true);
   };
 
   // Function to select a category from the modal
@@ -275,6 +291,33 @@ const HomeScreen = ({navigation}) => {
                   <Text>{cat}</Text>
                 </TouchableOpacity>
               ))}
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <Modal
+        visible={isRefreshModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsRefreshModalVisible(false)}>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPressOut={() => setIsRefreshModalVisible(false)}>
+          <View style={styles.modalOptionContainer}>
+            <TouchableOpacity
+              activeOpacity={1}
+              style={styles.modalContent}
+              onPress={() => {}}>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() => {
+                  loadNotes();
+                  setIsRefreshModalVisible(false);
+                }}>
+                <Text>Actualiser l'écran</Text>
+              </TouchableOpacity>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -375,6 +418,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
     elevation: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalOptionContainer: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 5,
+    width: '60%',
+  },
+  modalContent: {
+    padding: 10,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  modalIcon: {
+    marginRight: 15,
   },
 });
 
