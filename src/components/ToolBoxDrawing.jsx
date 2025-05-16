@@ -9,9 +9,6 @@ const ToolBoxDrawing = ({
   setSize,
   color,
   setColor,
-  signatureRef,
-  injectJS,
-  onToolChange,
 }) => {
   const sizes = [1, 2, 5, 8];
 
