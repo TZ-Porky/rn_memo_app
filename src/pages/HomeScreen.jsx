@@ -426,10 +426,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalOptionContainer: {
+    marginTop: 50,
     backgroundColor: 'white',
-    borderRadius: 10,
     padding: 5,
-    width: '60%',
+    borderRadius: 5,
+    marginLeft: 100,
   },
   modalContent: {
     padding: 10,
