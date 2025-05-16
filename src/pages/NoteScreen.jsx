@@ -22,10 +22,6 @@ const NoteScreen = ({navigation, route}) => {
   // This state controls the visibility of the voice recorder
   const [isRecorderVisible, setIsRecorderVisible] = useState(false);
 
-  // State for the drawing
-  // This state controls the visibility of the drawing canvas
-  const [drawing, setDrawing] = useState(null);
-
   // State for the modified state
   // This state controls if the note has been modified
   // It is used to show an alert when the user tries to leave the screen
@@ -51,9 +47,18 @@ const NoteScreen = ({navigation, route}) => {
     if (route.params?.drawingData) {
       console.log('[NoteScreen] Donnée reçue pour le dessin :');
       console.log(route.params.drawingData.slice(0, 100));
-      setDrawing(route.params.drawingData);
+      setNote(prevNote => ({
+        ...prevNote,
+        drawing: route.params.drawingData,
+      }));
     }
-  }, [route.params?.drawingData]);
+    if (route.params?.previousNote) {
+      setNote(prev => ({
+        ...route.params.previousNote,
+        drawing: route.params.drawingData,
+      }));
+    }
+  }, [route.params?.drawingData, route.params?.previousNote]);
 
   // This function is called when the component mounts
   // It navigate to HomeScreen when the user press the Back Button
@@ -85,9 +90,6 @@ const NoteScreen = ({navigation, route}) => {
           const existingNote = notes.find(n => n.id === route.params.noteId);
           if (existingNote) {
             setNote(existingNote);
-            if (existingNote.drawing) {
-              setDrawing(existingNote.drawing);
-            }
           }
         } catch (error) {
           console.error('Erreur lors du chargement de la note', error);
@@ -136,7 +138,6 @@ const NoteScreen = ({navigation, route}) => {
         ...note,
         title: note.title.trim(),
         content: note.content.trim(),
-        drawing: drawing || null,
       };
 
       // If the note already exists, update it
@@ -165,7 +166,6 @@ const NoteScreen = ({navigation, route}) => {
   // This function is called when the user presses the times icon button on drawing
   const handleDeleteDrawing = () => {
     console.log('Drawing Deleted !');
-    setDrawing(null);
     setNote(prevNote => ({
       ...prevNote,
       drawing: null,
@@ -195,7 +195,9 @@ const NoteScreen = ({navigation, route}) => {
   // Handle drawing press
   // This function is called when the user presses the drawing button
   const handleDrawingPress = () => {
-    navigation.navigate('DrawPage');
+    navigation.navigate('DrawPage', {
+      previousNote: note,
+    });
   };
 
   // Handle voice press
@@ -229,9 +231,9 @@ const NoteScreen = ({navigation, route}) => {
       />
 
       <ScrollView style={styles.contentArea}>
-        {drawing && (
+        {note.drawing && (
           <View style={styles.contentImageContainer}>
-            <Image source={{uri: drawing}} style={styles.contentImage} />
+            <Image source={{uri: note.drawing}} style={styles.contentImage} />
             <TouchableOpacity
               onPress={handleDeleteDrawing}
               style={styles.contentImageCloseButton}>
