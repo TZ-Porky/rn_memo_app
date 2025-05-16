@@ -18,6 +18,7 @@ import {SwipeListView} from 'react-native-swipe-list-view';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FloatingButton from '../components/FloatingButton';
+import InfoPopup from '../components/InfoPopup';
 
 import {getNotes, deleteNote} from '../services/NoteServices';
 
@@ -51,6 +52,10 @@ const HomeScreen = ({navigation}) => {
   // This state controls the visibility of the refresh modal
   const [isRefreshModalVisible, setIsRefreshModalVisible] = useState(false);
 
+  // State to manage the info popup
+  // This state controls the visibility of the info popup
+  const [showInfo, setShowInfo] = useState(false);
+
   // ================================================================================== //
 
   // Effect to load notes from AsyncStorage when the component mounts
@@ -74,6 +79,8 @@ const HomeScreen = ({navigation}) => {
     return unsubscribe;
   }, [navigation]);
 
+  // Function to load notes from AsyncStorage
+  // This function fetches the notes from AsyncStorage and updates the state
   const loadNotes = async () => {
     try {
       const loadedNotes = await getNotes();
@@ -84,6 +91,14 @@ const HomeScreen = ({navigation}) => {
     } catch (error) {
       console.error('Erreur de chargement des notes', error);
     }
+  };
+
+  // Function to show the app information
+  // This function displays a modal with information about the app
+  const appInfo = {
+    title: "À propos de l'application",
+    content:
+      'Version 1.1.0\n\nCette application vous permet de créer et organiser vos notes efficacement.\n\n© 2023 Groupe 4',
   };
 
   // ==================================================================================== //
@@ -319,6 +334,11 @@ const HomeScreen = ({navigation}) => {
                 }}>
                 <Text>Actualiser</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() => setShowInfo(true) }>
+                <Text>A propos</Text>
+              </TouchableOpacity>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -333,6 +353,13 @@ const HomeScreen = ({navigation}) => {
           autoFocus={true}
         />
       )}
+
+      <InfoPopup
+        isVisible={showInfo}
+        onClose={() => setShowInfo(false)}
+        title={appInfo.title}
+        content={appInfo.content}
+      />
 
       <SwipeListView
         data={filteredNotes}
