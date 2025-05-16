@@ -196,6 +196,7 @@ const NoteScreen = ({navigation, route}) => {
   // This function is called when the user presses the drawing button
   const handleDrawingPress = () => {
     navigation.navigate('DrawPage', {
+      editDrawing: note.drawing,
       previousNote: note,
     });
   };
@@ -232,14 +233,14 @@ const NoteScreen = ({navigation, route}) => {
 
       <ScrollView style={styles.contentArea}>
         {note.drawing && (
-          <View style={styles.contentImageContainer}>
+          <TouchableOpacity style={styles.contentImageContainer} activeOpacity={1} onPress={handleDrawingPress}>
             <Image source={{uri: note.drawing}} style={styles.contentImage} />
             <TouchableOpacity
               onPress={handleDeleteDrawing}
               style={styles.contentImageCloseButton}>
               <Icon name="times" size={20} />
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         )}
 
         <TextInput
