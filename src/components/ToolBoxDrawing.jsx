@@ -13,7 +13,7 @@ const ToolBoxDrawing = ({
   injectJS,
   onToolChange,
 }) => {
-  const sizes = [1, 2, 5, 10];
+  const sizes = [1, 2, 5, 8];
 
   const colors = [
     'black',
@@ -37,9 +37,6 @@ const ToolBoxDrawing = ({
       setIsEraser(false);
       setColor(value);
     }
-
-    setTimeout(onToolChange, 50);
-
   };
 
 
@@ -77,7 +74,10 @@ const ToolBoxDrawing = ({
                 size === sizeOption && styles.activeTool,
               ]}
               onPress={() => handleToolPress('size', sizeOption)}>
-              <Text style={styles.sizeText}>{sizeOption}</Text>
+              <View style={[
+                styles.sizeIndicator,
+                { width: sizeOption * 3, height: sizeOption * 3 },
+              ]} />
             </TouchableOpacity>
           ))}
         </View>
@@ -126,6 +126,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     alignItems: 'center',
+  },
+  sizeIndicator: {
+    backgroundColor: 'black',
+    borderRadius: 50,
   },
   sectionTitle: {
     textAlign: 'left',
