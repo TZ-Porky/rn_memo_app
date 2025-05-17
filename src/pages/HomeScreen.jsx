@@ -8,6 +8,8 @@ import {
   Modal,
   BackHandler,
   Alert,
+  NativeModules,
+  Platform,
 } from 'react-native';
 
 import HeaderBar from '../components/HeaderBar';
@@ -163,7 +165,29 @@ const HomeScreen = ({navigation}) => {
     }, []),
   );
 
+  // Effect to save the last note to the widget when the notes change
+  // This effect uses NativeModules to send the note data to the widget
+  useEffect(() => {
+    if (notes.length > 0) {
+      saveLastNoteToWidget(notes[0]);
+    }
+  }, [notes]);
+
   // ==================================================================================== //
+
+  // Function to save the last note to the widget
+  // This function uses NativeModules to send the note data to the widget
+  const saveLastNoteToWidget = async note => {
+    if (Platform.OS === 'android') {
+      try {
+        await NativeModules.WidgetUpdater.saveNoteToWidget(
+          note.title + '\n' + note.content,
+        );
+      } catch (error) {
+        console.error('Erreur en envoyant la note au widget :', error);
+      }
+    }
+  };
 
   // Function to delete a note
   // This function removes the note from the state and updates AsyncStorage
@@ -336,7 +360,7 @@ const HomeScreen = ({navigation}) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalOption}
-                onPress={() => setShowInfo(true) }>
+                onPress={() => setShowInfo(true)}>
                 <Text>A propos</Text>
               </TouchableOpacity>
             </TouchableOpacity>

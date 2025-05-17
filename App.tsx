@@ -5,7 +5,6 @@ import HomeScreen from './src/pages/HomeScreen';
 import NoteScreen from './src/pages/NoteScreen';
 import DrawingScreen from './src/pages/DrawingScreen';
 
-
 const Stack = createNativeStackNavigator();
 
 function App() {
