@@ -10,6 +10,7 @@ import {
   Alert,
   NativeModules,
   Platform,
+  AppState,
 } from 'react-native';
 
 import HeaderBar from '../components/HeaderBar';
@@ -169,25 +170,43 @@ const HomeScreen = ({navigation}) => {
   // This effect uses NativeModules to send the note data to the widget
   useEffect(() => {
     if (notes.length > 0) {
-      saveLastNoteToWidget(notes[0]);
+      saveNotesToWidget(notes);
     }
   }, [notes]);
+
+  useEffect(() => {
+    const handleAppOpen = async () => {
+      if (Platform.OS === 'android') {
+        const initialRoute = await NativeModules.IntentModule?.getInitialRoute?.();
+        if (initialRoute === 'NoteScreen') {
+          navigation.navigate('NoteScreen');
+        }
+      }
+    };
+
+    const listener = AppState.addEventListener('change', handleAppOpen);
+    handleAppOpen(); // appel initial
+
+    return () => listener.remove();
+  }, [navigation]);
 
   // ==================================================================================== //
 
   // Function to save the last note to the widget
   // This function uses NativeModules to send the note data to the widget
-  const saveLastNoteToWidget = async note => {
+  const saveNotesToWidget = async notes => {
     if (Platform.OS === 'android') {
       try {
-        await NativeModules.WidgetUpdater.saveNoteToWidget(
-          note.title + '\n' + note.content,
+        const formattedNotes = notes.slice(0, 5).map(note => 
+          `${note.title}||${note.content}||${note.date}`
         );
+        await NativeModules.WidgetUpdater.saveNotesToWidget(JSON.stringify(formattedNotes));
       } catch (error) {
-        console.error('Erreur en envoyant la note au widget :', error);
+        console.error('Erreur en envoyant les notes au widget :', error);
       }
     }
   };
+  
 
   // Function to delete a note
   // This function removes the note from the state and updates AsyncStorage

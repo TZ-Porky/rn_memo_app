@@ -11,10 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/pages/HomeScreen.jsx",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ]
+            "program": "${workspaceFolder}/index.js"
         }
     ]
 }
